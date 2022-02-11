@@ -1,31 +1,15 @@
 import express from "express";
-import React from "react";
-import { renderToString } from "react-dom/server";
-import { StaticRouter } from "react-router-dom/server";
-import RouteSet from "./client/RouteSet";
+
+import render from "./renderHelper";
+import store from "./client/redux";
 
 const app = express();
 app.use(express.static("public"));
 
 // 直接接收所有path的req，後續轉由React app拿出component
 app.get("*", (req, res) => {
-  const content = renderToString(
-    <StaticRouter location={req.url}>
-      <RouteSet />
-    </StaticRouter>
-  );
-
-  const html = `
-    <html>
-      <head></head>
-      <body>
-        <div id="root">${content}</div>
-        <script src="bundle.js"></script>
-      </body>
-    </html>
-  `;
-
-  res.send(html);
+  //額外移出為另一個fn
+  res.send(render(req, store));
 });
 // app.get("/", (req, res) => {
 //   const content = renderToString(<Home />);
